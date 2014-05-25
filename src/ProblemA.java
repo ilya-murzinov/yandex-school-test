@@ -2,11 +2,10 @@ import java.io.*;
 import java.util.*;
 
 public class ProblemA {
-    public static String inName = "input_find.txt";
-    public static String outName = "output.txt";
+    public static String inName = "input_acm1.txt";
     public static Formats inputFormat;
     public static Formats outputFormat;
-    public static String number;
+    public static Integer number;
 
     public enum Formats {
         FIND("find"),
@@ -33,34 +32,47 @@ public class ProblemA {
     }
 
     public static void main(String[] args) {
+//        Node<String> node = new Node<String>("1", 0);
+//        node.addChild("2", 1);
+//        node.get(1).addChild("3", 5);
+//        node.get(5).addChild("4", 7);
         String[] paths = null;
         try {
-            DataInputStream stream = new DataInputStream(System.in);
+            InputStream stream = new FileInputStream(inName);
+            //DataInputStream stream = new DataInputStream(System.in);
             InputStreamReader fileReader = new InputStreamReader(stream);
+
             BufferedReader bufferedReader = new BufferedReader(fileReader);
             inputFormat = Formats.fromString(bufferedReader.readLine());
             outputFormat = Formats.fromString(bufferedReader.readLine());
-            number = bufferedReader.readLine();
-            paths = new String[Integer.parseInt(number)];
-            for (int i = 0; i < paths.length; i++) {
-                paths[i] = bufferedReader.readLine();
+            if (inputFormat != Formats.XML) {
+                number = Integer.parseInt(bufferedReader.readLine());
+                if (inputFormat == Formats.ACM1 || inputFormat == Formats.ACM2
+                        || inputFormat == Formats.ACM3) {
+                    paths = new String[2 * number];
+                } else {
+                    paths = new String[number];
+                }
+
+                for (int i = 0; i < paths.length; i++) {
+                    paths[i] = bufferedReader.readLine();
+                }
+            } else {
+
             }
 
-//            InputStream inputStream = new FileInputStream(inName);
-//            InputStreamReader fileReader = new InputStreamReader(inputStream);
-//            BufferedReader bufferedReader = new BufferedReader(fileReader);
-//            inputFormat = Formats.fromString(bufferedReader.readLine());
-//            outputFormat = Formats.fromString(bufferedReader.readLine());
-//            number = bufferedReader.readLine();
-//            paths = new String[Integer.parseInt(number)];
-//            for (int i = 0; i < paths.length; i++) {
-//                paths[i] = bufferedReader.readLine();
-//            }
+            if (inputFormat.equals(outputFormat)) {
+                System.out.println(number);
+                for (String path : paths) {
+                    System.out.println(path);
+                }
+                return;
+            }
         } catch (IOException e) {
             e.printStackTrace();
         }
 
-        Node<String, Integer> raw;
+        Node<String> raw;
 
         switch (inputFormat) {
             case FIND:
@@ -68,6 +80,9 @@ public class ProblemA {
                 break;
             case PYTHON:
                 raw = parsePython(paths);
+                break;
+            case ACM1:
+                raw = parseACM1(paths);
                 break;
             default:
                 raw = null;
@@ -89,9 +104,9 @@ public class ProblemA {
         System.out.print(number + "\n" + result);
     }
 
-    public static Node<String, Integer> parseFind(String[] paths) {
-        Node<String, Integer> root
-                = new Node<String, Integer>(paths[0].split("\\s")[0], Integer.parseInt(paths[0].split("\\s")[1]));
+    public static Node<String> parseFind(String[] paths) {
+        Node<String> root
+                = new Node<String>(paths[0].split("\\s")[0], 0);
         for (int i = 1; i < paths.length; i++) {
             String path = paths[i];
             String value = path.split("\\s")[0];
@@ -103,16 +118,17 @@ public class ProblemA {
         return root;
     }
 
-    public static Node<String, Integer> parsePython(String[] paths) {
-        Node<String, Integer> root
-                = new Node<String, Integer>(paths[0].split("\\s")[0], Integer.parseInt(paths[0].split("\\s")[1]));
-        Node<String, Integer> previous = root;
-        Node<String, Integer> parent = root;
+    public static Node<String> parsePython(String[] paths) {
+        Node<String> root
+                = new Node<String>(paths[0].split("\\s")[0], 0);
+        Node<String> previous = root;
+        Node<String> parent = root;
         int numberOfSpaces = 0;
         for (int i = 1; i < paths.length; i++) {
             String path = paths[i];
-            Node<String, Integer> newNode
-                    = new Node<String, Integer>(path.trim().split("\\s")[0], Integer.parseInt(path.trim().split("\\s")[1]));
+            Node<String> newNode
+                    = new Node<String>(path.trim().split("\\s")[0],
+                    Integer.parseInt(path.trim().split("\\s")[1]));
             int indent = path.length() - path.trim().length();
             if (indent > numberOfSpaces) {
                 numberOfSpaces = indent;
@@ -135,22 +151,50 @@ public class ProblemA {
         return root;
     }
 
-    public static String toFind(Node<String, Integer> root) {
+    public static Node<String> parseACM1(String[] paths) {
+        Map<String, String> data = new HashMap<String, String>();
+        for (int i = 0; i < number; i++) {
+            data.put(paths[i].split("\\s")[1],
+                    paths[i].split("\\s")[0]);
+        }
+        Node<String> root
+                = new Node<String>(data.get("0"), 0);
+        for (int i = number; i < 2 * number; i++) {
+            if (paths[i].equals("0")) {
+                if (root.get(Integer.parseInt(paths[i - number].split("\\s")[1])) == null) {
+                    root.addChild(paths[i - number].split("\\s")[0],
+                            Integer.parseInt(paths[i - number].split("\\s")[1]));
+                }
+            } else {
+                int numberOfChildren = Integer.parseInt(paths[i].split("\\s")[0]);
+                for (int j = 1; j <= numberOfChildren; j++) {
+                    int parentKey = Integer.parseInt(paths[i - number].split("\\s")[1]);
+                    Node<String> parent = root.get(parentKey);
+                    String value = data.get(paths[i].split("\\s")[j]);
+                    int key = Integer.parseInt(paths[i].split("\\s")[j]);
+                    parent.addChild(value, key);
+                }
+            }
+        }
+        return root;
+    }
+
+    public static String toFind(Node<String> root) {
         StringBuilder stringBuilder = new StringBuilder();
         stringBuilder.append(root.getValue());
         stringBuilder.append(" ");
         stringBuilder.append(root.getKey());
         stringBuilder.append("\n");
-        for (Node<String, Integer> child : root.getChildren()) {
-            Node<String, Integer> parent = child.getParent();
-            List<Node<String, Integer>> list = new ArrayList<Node<String, Integer>>();
+        for (Node<String> child : root.getChildren()) {
+            Node<String> parent = child.getParent();
+            List<Node<String>> list = new ArrayList<Node<String>>();
             while (parent != null) {
                 list.add(parent);
                 parent = parent.getParent();
             }
             Collections.reverse(list);
 
-            for (Node<String, Integer> value : list) {
+            for (Node<String> value : list) {
                 stringBuilder.append(value.getValue());
                 stringBuilder.append("/");
             }
@@ -160,14 +204,14 @@ public class ProblemA {
         return stringBuilder.toString();
     }
 
-    public static String toPython(Node<String, Integer> root) {
+    public static String toPython(Node<String> root) {
         StringBuilder stringBuilder = new StringBuilder();
         stringBuilder.append(root.getValue());
         stringBuilder.append(" ");
         stringBuilder.append(root.getKey());
         stringBuilder.append("\n");
-        for (Node<String, Integer> child : root.getChildren()) {
-            Node<String, Integer> parent = child.getParent();
+        for (Node<String> child : root.getChildren()) {
+            Node<String> parent = child.getParent();
             String indent = "";
             while (parent != null) {
                 indent += "    ";
@@ -181,36 +225,36 @@ public class ProblemA {
     }
 }
 
-class Node<T, U> {
+class Node<T> {
     private T value;
-    private U key;
-    private Node<T, U> parent;
-    private List<Node<T, U>> children;
+    private Integer key;
+    private Node<T> parent;
+    private List<Node<T>> children;
 
-    public Node(T value, U key) {
+    public Node(T value, Integer key) {
         this.value = value;
         this.key = key;
-        children = new ArrayList<Node<T, U>>();
+        children = new ArrayList<Node<T>>();
     }
 
-    public void addChild(T value, U key) {
-        Node<T, U> child = new Node<T, U>(value, key);
+    public void addChild(T value, Integer key) {
+        Node<T> child = new Node<T>(value, key);
         children.add(child);
-        child.children = new ArrayList<Node<T, U>>();
+        child.children = new ArrayList<Node<T>>();
         child.parent = this;
     }
 
-    public void addChild(Node<T, U> newNode) {
+    public void addChild(Node<T> newNode) {
         children.add(newNode);
-        newNode.children = new ArrayList<Node<T, U>>();
+        newNode.children = new ArrayList<Node<T>>();
         newNode.parent = this;
     }
 
-    public void addNestedNodes(List<T> values, U key) {
+    public void addNestedNodes(List<T> values, Integer key) {
         if (values.size() == 1) {
             addChild(values.get(0), key);
         } else {
-            Node<T, U> child = getChild(values.get(0));
+            Node<T> child = getChild(values.get(0));
             if (child == null) {
                 addChild(values.get(0), key);
                 values.remove(0);
@@ -222,20 +266,71 @@ class Node<T, U> {
         }
     }
 
-    public Node<T, U> getChild(T value) {
+    public Node<T> getChild(T value) {
         if (children.size() != 0) {
-            for (Node<T, U> child : children) {
+            for (Node<T> child : children) {
                 if (child.value.equals(value)) {
                     return child;
                 } else {
-                    child.getChild(value);
+                    Node<T> node = child.get(value);
+                    if (value != null) {
+                        return node;
+                    }
                 }
             }
         }
         return null;
     }
 
-    public List<Node<T, U>> getChildren() {
+    public Node<T> getChild(Integer key) {
+        if (children.size() != 0) {
+            for (Node<T> child : children) {
+                if (child.key.equals(key)) {
+                    return child;
+                } else {
+                    child.getChild(key);
+                }
+            }
+        }
+        return null;
+    }
+
+    public Node<T> get(T value) {
+        if (this.value.equals(value)) {
+            return this;
+        }
+        if (children.size() != 0) {
+            for (Node<T> child : children) {
+                if (child.value.equals(value)) {
+                    return child;
+                } else {
+                    child.get(value);
+                }
+            }
+        }
+        return null;
+    }
+
+    public Node<T> get(Integer key) {
+        if (this.key.equals(key)) {
+            return this;
+        }
+        if (children.size() != 0) {
+            for (Node<T> child : children) {
+                if (child.key.equals(key)) {
+                    return child;
+                } else {
+                    Node<T> value = child.get(key);
+                    if (value != null) {
+                        return value;
+                    }
+                }
+            }
+        }
+        return null;
+    }
+
+    public List<Node<T>> getChildren() {
         return children;
     }
 
@@ -243,11 +338,11 @@ class Node<T, U> {
         return value;
     }
 
-    public U getKey() {
+    public Integer getKey() {
         return key;
     }
 
-    public Node<T, U> getParent() {
+    public Node<T> getParent() {
         return parent;
     }
 }

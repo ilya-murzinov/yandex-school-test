@@ -2,14 +2,9 @@ import java.io.*;
 import java.util.*;
 
 public class ProblemA {
-    public static String inName = "input_find_acm3.txt";
     public static Formats inputFormat;
     public static Formats outputFormat;
     public static Integer number;
-
-    public ProblemA(String fileName) {
-        inName = fileName;
-    }
 
     public enum Formats {
         FIND("find"),
@@ -42,7 +37,6 @@ public class ProblemA {
     public static String transform() {
         String[] paths = null;
         try {
-            //InputStream stream = new FileInputStream(inName);
             DataInputStream stream = new DataInputStream(System.in);
             InputStreamReader fileReader = new InputStreamReader(stream);
 

@@ -1,0 +1,22 @@
+xml
+find
+<dir name='xnztxwnsuszs' id='0'>
+  <dir name='vfbhsigyx' id='65923090'>
+    <file name='ezsqnpqlo' id='138083822'/>
+    <file name='txaljtlyceg' id='1523914060'/>
+  </dir>
+  <dir name='hbgssskrdbj' id='428271608'>
+    <dir name='ughjtawtftjp' id='685896211'>
+      <file name='dmcldsvhyg' id='717039702'/>
+    </dir>
+    <file name='pcayxlcnfx' id='864545037'/>
+    <file name='bycsxctvtba' id='1325580457'/>
+  </dir>
+  <dir name='wjnuhugri' id='726239636'>
+    <file name='giwfxneq' id='1305278029'/>
+  </dir>
+  <file name='kfufjzlxtb' id='857351296'/>
+  <file name='mdjbrvtdujlz' id='952652771'/>
+  <file name='tdopjhdjy' id='1343818044'/>
+  <file name='elhtfwnecso' id='1564454554'/>
+</dir>
